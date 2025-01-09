@@ -6,6 +6,8 @@ import {
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export interface Reading {
   type: string;
   data: string;
@@ -58,7 +60,7 @@ function SequentialStream() {
   const [allReadings, setAllReadings] = useState<AllSavedReadings>({});
 
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/get_layout')
+    fetch(`${API_URL}/get_layout`)
       .then((response) => response.json())
       .then((data) => {
         setRuas(data.armazem[0].rua);
@@ -82,7 +84,7 @@ function SequentialStream() {
     if (!isScanning) return;
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/latest_code');
+      const response = await fetch(`${API_URL}/latest_code`);
       const data = await response.json();
 
       if (data.data) {
@@ -127,7 +129,7 @@ function SequentialStream() {
           })),
     };
 
-    const response = await fetch('http://127.0.0.1:5000/save_readings', {
+    const response = await fetch(`${API_URL}/save_readings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -154,7 +156,7 @@ function SequentialStream() {
       const searchParams = new URLSearchParams({ address: currentAddress });
 
       const response = await fetch(
-        `http://127.0.0.1:5000/get_next_address?${searchParams}`,
+        `${API_URL}/get_next_address?${searchParams}`,
         {
           method: 'GET',
           headers: {
@@ -254,7 +256,7 @@ function SequentialStream() {
             )}
 
             <img
-              src="http://127.0.0.1:5000/video_feed"
+              src={`${API_URL}/video_feed`}
               alt="Video Feed"
               className="w-full max-w-[1280px] h-auto z-0"
               style={{

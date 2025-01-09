@@ -27,6 +27,8 @@ import { useState } from 'react';
 import { AllSavedReadings } from './index.lazy';
 import { ColumnFiltersState } from '@tanstack/react-table';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const Route = createLazyFileRoute('/historico')({
   component: Historico,
 });
@@ -78,7 +80,7 @@ function Historico() {
     queryKey: ['armazens', cdCliente],
     queryFn: async () => {
       const res = await fetch(
-        `http://127.0.0.1:5000/cliente/${cdCliente}/armazem`,
+        `${API_URL}/cliente/${cdCliente}/armazem`,
       ).then((res) => res.json() as Promise<{ armazens: Armazem[] }>);
       if (cdArmazem === '') {
         setCdArmazem(res.armazens[0].cdArmazem);
@@ -91,7 +93,7 @@ function Historico() {
     queryKey: ['leituras', cdCliente, cdArmazem],
     queryFn: async () => {
       const res = await fetch(
-        `http://127.0.0.1:5000/cliente/${cdCliente}/armazem/${cdArmazem}/datas-leitura`,
+        `${API_URL}/cliente/${cdCliente}/armazem/${cdArmazem}/datas-leitura`,
       ).then((res) => res.json() as Promise<{ datas_leitura: string[] }>);
 
       if (res.datas_leitura.length) {
@@ -105,7 +107,7 @@ function Historico() {
   const { data: dataHistorico } = useQuery({
     queryKey: ['historico', cdCliente, cdArmazem, dataLeitura],
     queryFn: async () => {
-      const url = new URL(`http://127.0.0.1:5000/historico`);
+      const url = new URL(`${API_URL}/historico`);
       url.searchParams.set('cdArmazem', cdArmazem);
       url.searchParams.set(
         'dataLeitura',
@@ -123,7 +125,7 @@ function Historico() {
   const { data: dataRuas } = useQuery({
     queryKey: ['layout', cdCliente, cdArmazem],
     queryFn: async () => {
-      const res = await fetch(`http://127.0.0.1:5000/get_layout`).then(
+      const res = await fetch(`${API_URL}/get_layout`).then(
         (res) => res.json() as Promise<{ armazem: ArmazemLayout[] }>,
       );
       return res?.armazem?.[0]?.rua || [];
@@ -135,7 +137,7 @@ function Historico() {
     queryKey: ['datas-leitura', cdCliente, cdArmazem],
     queryFn: async () => {
       const res = await fetch(
-        `http://127.0.0.1:5000/cliente/${cdCliente}/armazem/${cdArmazem}/datas-leitura`,
+        `${API_URL}/cliente/${cdCliente}/armazem/${cdArmazem}/datas-leitura`,
       ).then((res) => res.json() as Promise<{ datas_leitura: string[] }>);
       return res?.datas_leitura || [];
     },
