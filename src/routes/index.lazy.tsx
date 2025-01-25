@@ -3,6 +3,15 @@ import {
   LayoutVisualizer,
   RuaLayout,
 } from '@/components/layout-visualizer/layout-visualizer.component';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -200,6 +209,33 @@ function SequentialStream() {
 
   return (
     <div>
+      <div className="flex gap-4 p-4">
+        <Button variant="outline">Nova Leitura</Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">Continuar Leitura...</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Leitura 1</DropdownMenuItem>
+            <DropdownMenuItem>Leitura 2</DropdownMenuItem>
+            <DropdownMenuItem>Leitura 3</DropdownMenuItem>
+            <DropdownMenuItem>Leitura 4</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <Label>Armazém</Label>
+          <Select>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione um armazém" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">Armazém 1</SelectItem>
+              <SelectItem value="2">Armazém 2</SelectItem>
+              <SelectItem value="3">Armazém 3</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       <div className="container mx-auto p-4 flex gap-4">
         <div className="flex-1">
           <div className="relative min-h-[300px] rounded-lg overflow-hidden">
