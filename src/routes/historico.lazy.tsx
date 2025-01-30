@@ -19,55 +19,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { Armazem, LeituraHistorico } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { createLazyFileRoute } from '@tanstack/react-router';
+import { ColumnFiltersState } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import { CalendarIcon } from 'lucide-react';
 import { useState } from 'react';
 import { AllSavedReadings } from './index.lazy';
-import { ColumnFiltersState } from '@tanstack/react-table';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const Route = createLazyFileRoute('/historico')({
   component: Historico,
 });
-
-export interface Armazem {
-  cdArmazem: string;
-  nome: string;
-}
-
-export interface Rua {
-  cdArmazem: number;
-  cdRua: number;
-  nome: string;
-}
-
-export interface Prateleira {
-  cdPrateleira: number;
-  cdRua: number;
-  nome: string;
-  rua: Rua;
-}
-
-export interface Sessao {
-  cdPrateleira: number;
-  cdSessao: number;
-  nome: string;
-  prateleira: Prateleira;
-}
-
-export interface LeituraHistorico {
-  blVazio: boolean;
-  cdSessao: number;
-  dadoLeitura: string;
-  dtRegistro: string;
-  id: number;
-  idLeitura: string;
-  sessao: Sessao;
-  tipoDado: string;
-}
 
 function Historico() {
   const cdCliente = localStorage.getItem('cdCliente') || '33';
@@ -79,9 +44,9 @@ function Historico() {
   const { data: armazens, isLoading: isLoadingArmazens } = useQuery({
     queryKey: ['armazens', cdCliente],
     queryFn: async () => {
-      const res = await fetch(
-        `${API_URL}/cliente/${cdCliente}/armazem`,
-      ).then((res) => res.json() as Promise<{ armazens: Armazem[] }>);
+      const res = await fetch(`${API_URL}/cliente/${cdCliente}/armazem`).then(
+        (res) => res.json() as Promise<{ armazens: Armazem[] }>,
+      );
       if (cdArmazem === '') {
         setCdArmazem(res.armazens[0].cdArmazem);
       }

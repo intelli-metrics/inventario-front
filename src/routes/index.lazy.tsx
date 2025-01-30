@@ -11,7 +11,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Armazem, Inventario, StatusInventario } from '@/types';
+import { useQuery } from '@tanstack/react-query';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -45,6 +53,8 @@ export const Route = createLazyFileRoute('/')({
 });
 
 function SequentialStream() {
+  const cdCliente = localStorage.getItem('cdCliente') || '33';
+  const [cdArmazem, setCdArmazem] = useState('');
   const [formData, setFormData] = useState<FormData>({
     nomeRua: '',
     nomePrateleira: '',
@@ -67,6 +77,29 @@ function SequentialStream() {
   });
 
   const [allReadings, setAllReadings] = useState<AllSavedReadings>({});
+
+  const { data: armazens } = useQuery({
+    queryKey: ['armazens', cdCliente],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/cliente/${cdCliente}/armazem`).then(
+        (res) => res.json() as Promise<{ armazens: Armazem[] }>,
+      );
+      if (cdArmazem === '') {
+        setCdArmazem(res.armazens[0].cdArmazem);
+      }
+      return res.armazens;
+    },
+  });
+
+  const { data: inventarios } = useQuery({
+    queryKey: ['inventarios', cdCliente],
+    queryFn: async () => {
+      const res = await fetch(
+        `${API_URL}/cliente/${cdCliente}/inventario?statusInventario=${StatusInventario.EM_PROGRESSO}`,
+      ).then((res) => res.json() as Promise<{ inventario: Inventario[] }>);
+      return res.inventario;
+    },
+  });
 
   useEffect(() => {
     fetch(`${API_URL}/get_layout`)
@@ -213,13 +246,19 @@ function SequentialStream() {
         <Button variant="outline">Nova Leitura</Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">Continuar Leitura...</Button>
+            <Button
+              variant="outline"
+              disabled={(inventarios || [])?.length === 0}
+            >
+              Continuar Leitura...
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem>Leitura 1</DropdownMenuItem>
-            <DropdownMenuItem>Leitura 2</DropdownMenuItem>
-            <DropdownMenuItem>Leitura 3</DropdownMenuItem>
-            <DropdownMenuItem>Leitura 4</DropdownMenuItem>
+            {inventarios?.map((inventario) => (
+              <DropdownMenuItem key={inventario.cdInventario}>
+                {inventario.dtComeco}
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
         <div className="flex items-center gap-2">
@@ -229,9 +268,11 @@ function SequentialStream() {
               <SelectValue placeholder="Selecione um armazém" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">Armazém 1</SelectItem>
-              <SelectItem value="2">Armazém 2</SelectItem>
-              <SelectItem value="3">Armazém 3</SelectItem>
+              {armazens?.map((armazem) => (
+                <SelectItem key={armazem.cdArmazem} value={armazem.cdArmazem}>
+                  {armazem.nome ?? armazem.cdArmazem}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
